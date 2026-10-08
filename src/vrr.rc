@@ -1,0 +1,28 @@
+// vrr.exe's Windows resources: the manifest and the version information Explorer shows
+#include <winver.h>
+
+1 24 "vrr.manifest"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     1, 0, 0, 0
+PRODUCTVERSION  1, 0, 0, 0
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "FileDescription",  "Virtua Racing enhanced frontend (non-commercial)"
+      VALUE "FileVersion",      "1.0.0"
+      VALUE "InternalName",     "vrr"
+      VALUE "OriginalFilename", "vrr.exe"
+      VALUE "ProductName",      "VirtuaRacingMDEnhanced"
+      VALUE "ProductVersion",   "1.0.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 1200
+  END
+END

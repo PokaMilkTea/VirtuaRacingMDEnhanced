@@ -1,0 +1,28 @@
+# ROMs never go into version control. .md is also a Mega Drive ROM extension, so all of rom/ is ignored
+/rom/
+*.bin
+*.gen
+*.smd
+
+# Build output (root only; GPGX's sources have directories named build that are committed)
+/build/
+/out/
+third_party/genplus-gx/sdl/build_sdl2/
+third_party/genplus-gx/sdl/gen_sdl2
+third_party/genplus-gx/sdl/build_win/
+
+# Toolchain and SDL2 for the Windows cross build (downloaded by make win, see Makefile)
+/deps/
+
+# Files the front ends write to the current directory. Save states hold the SVP's iram (copied from the ROM), so they are ROM-derived data
+*.gp0
+*.srm
+*.brm
+error.log
+*.ppm
+vrr.ini
+
+.DS_Store
+
+# Files other tools create locally
+AGENTS.md
