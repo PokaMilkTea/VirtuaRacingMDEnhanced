@@ -32,6 +32,11 @@ The project uses high-level emulation (HLE) to intercept rendering commands sent
 </p>
 <p align="center">The in-game settings menu (Esc).</p>
 
+<p align="center">
+  <a href="https://youtu.be/zPLkgRMxFig"><img src="https://img.youtube.com/vi/zPLkgRMxFig/maxresdefault.jpg" alt="Virtua Racing MD Enhanced demo video" width="75%"></a>
+</p>
+<p align="center">Demo video on YouTube (click to play).</p>
+
 ## ROM
 
 This project does **not** provide any ROM.

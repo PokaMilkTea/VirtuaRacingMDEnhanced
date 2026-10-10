@@ -32,6 +32,11 @@
 </p>
 <p align="center">遊戲內的設定選單（Esc）。</p>
 
+<p align="center">
+  <a href="https://youtu.be/zPLkgRMxFig"><img src="https://img.youtube.com/vi/zPLkgRMxFig/maxresdefault.jpg" alt="Virtua Racing MD Enhanced 展示影片" width="75%"></a>
+</p>
+<p align="center">YouTube 上的展示影片（點擊播放）。</p>
+
 ## ROM
 
 本專案**不提供**任何 ROM。
