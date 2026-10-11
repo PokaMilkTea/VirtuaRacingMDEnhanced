@@ -2,7 +2,7 @@
 
 English | [繁體中文](README.zh-TW.md)
 
-An enhanced version of **Virtua Racing** for the Sega Mega Drive / Genesis, powered by the open-source Genesis Plus GX emulator.
+An emulator-based project that runs the original Sega Mega Drive / Genesis version of **Virtua Racing** with enhanced graphics. It is built on the open-source Genesis Plus GX emulator.
 
 Developed with Claude Code (Opus 5.5).
 

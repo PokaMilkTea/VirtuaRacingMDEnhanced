@@ -2,8 +2,8 @@
 
 [English](README.md) | 繁體中文
 
-《Virtua Racing》Mega Drive / Genesis 強化版。
-以開源模擬器 Genesis Plus GX 為基礎。
+以模擬器為基礎，執行原版 Mega Drive / Genesis《Virtua Racing》並強化畫面的專案。
+核心採用開源模擬器 Genesis Plus GX。
 使用 Claude Code Opus 5.5 協助開發。
 
 此版本為懷舊與研究用，若想要更完美的街機版體驗，推薦 Switch 版的 Virtua Racing，或 32X, Saturn 等平台移植版。
