@@ -1,7 +1,8 @@
 /*
  * vrr: Virtua Racing frontend on the Genesis Plus GX core (SDL2 + OpenGL 3.3 core).
  *
- * usage: vrr [-d N [-t from] [-F]] [-r 1|2|4|0] [-s] [-W] [-l state] [-p frame:keys]... rom
+ * usage: vrr [-v] [-d N [-t from] [-F]] [-r 1|2|4|0] [-s] [-W] [-l state] [-p frame:keys]... rom
+ *   -v    print the version and exit
  *   -d N  run frames 0..N as fast as possible (input only from -p), checking every frame that
  *         our VDP layers (layers.c) composite to exactly the core's frame. Frame N is written
  *         as the core drew it (vrr_NNNNNN.ppm, same format as svptrace -w N) and, when its 3D
@@ -87,6 +88,9 @@
 #include "hle.h"
 #include "layers.h"
 #include "settings.h"
+#include "version.h"
+
+#define TITLE "Virtua Racing MD Enhanced " VRR_VERSION   /* the window's, and -v's */
 
 #ifdef _WIN32
 #include <windows.h>
@@ -1705,12 +1709,12 @@ static int measured_image_rate(void)
 static void update_title(SDL_Window *window)
 {
   static char shown[280];
-  char title[280] = "Virtua Racing";
+  char title[280] = TITLE;
   int image_rate = measured_image_rate();   /* measured all the time, so it is current when shown */
 
   if (view == VIEW_ORIGINAL)
   {
-    snprintf(title, sizeof(title), "Virtua Racing - %s", view_names[view]);
+    snprintf(title, sizeof(title), TITLE " - %s", view_names[view]);
   }
   else
   {
@@ -1721,7 +1725,7 @@ static void update_title(SDL_Window *window)
     else
       sprintf(size, "%dx", resolution);
     if (msaa && full_colour) strcat(size, " [4] MSAA");
-    snprintf(title, sizeof(title), "Virtua Racing - %s - [8] %s - [5] %s - %s", view_names[view],
+    snprintf(title, sizeof(title), TITLE " - %s - [8] %s - [5] %s - %s", view_names[view],
              widescreen ? "16:9" : "4:3", full_colour ? "full colour" : "9-bit colour",
              !hle_displayed() ? "SVP 3D on this screen (no HLE for it yet)" : "");
     if (hle_displayed())
@@ -1993,16 +1997,18 @@ static void toggle_fullscreen(SDL_Window *window)
 }
 
 /* A key: Esc opens or closes the menu, which takes the arrows and Enter while open; 1-9 change
-   the settings, O and P save and load the state, Alt+Enter toggles fullscreen. Returns 0 to
-   quit. */
-static int handle_key(SDL_Window *window, SDL_Keycode key)
+   the settings, O and P save and load the state, Alt+Enter toggles fullscreen. Keys are taken by
+   their place on the keyboard (scancode), as the game's are (read_pad): the character a key
+   types depends on the layout (an AZERTY number row types & é " ...), and under Wine on Linux
+   it can come out wrong altogether. Returns 0 to quit. */
+static int handle_key(SDL_Window *window, SDL_Scancode key)
 {
-  if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && (SDL_GetModState() & KMOD_ALT))
+  if ((key == SDL_SCANCODE_RETURN || key == SDL_SCANCODE_KP_ENTER) && (SDL_GetModState() & KMOD_ALT))
   {
     toggle_fullscreen(window);
     return 1;
   }
-  if (key == SDLK_ESCAPE)
+  if (key == SDL_SCANCODE_ESCAPE)
   {
     set_menu_open(!menu.open);
     return 1;
@@ -2010,20 +2016,21 @@ static int handle_key(SDL_Window *window, SDL_Keycode key)
   if (menu.open)
     switch (key)
     {
-      case SDLK_UP: move_cursor(-1); return 1;
-      case SDLK_DOWN: move_cursor(1); return 1;
-      case SDLK_LEFT:
-      case SDLK_RIGHT:
-        if (menu.selected < KEY_SETTINGS) change_setting(window, menu.selected, key == SDLK_LEFT ? -1 : 1);
+      case SDL_SCANCODE_UP: move_cursor(-1); return 1;
+      case SDL_SCANCODE_DOWN: move_cursor(1); return 1;
+      case SDL_SCANCODE_LEFT:
+      case SDL_SCANCODE_RIGHT:
+        if (menu.selected < KEY_SETTINGS) change_setting(window, menu.selected, key == SDL_SCANCODE_LEFT ? -1 : 1);
         return 1;
-      case SDLK_RETURN:
-      case SDLK_KP_ENTER:
-      case SDLK_SPACE:
+      case SDL_SCANCODE_RETURN:
+      case SDL_SCANCODE_KP_ENTER:
+      case SDL_SCANCODE_SPACE:
         return confirm_item(window);
+      default: break;
     }
-  if (key >= SDLK_1 && key <= SDLK_9) change_setting(window, key - SDLK_1, 1);
-  else if (key == SDLK_o) save_state();
-  else if (key == SDLK_p) load_state(STATE_FILE);
+  if (key >= SDL_SCANCODE_1 && key <= SDL_SCANCODE_9) change_setting(window, key - SDL_SCANCODE_1, 1);
+  else if (key == SDL_SCANCODE_O) save_state();
+  else if (key == SDL_SCANCODE_P) load_state(STATE_FILE);
   return 1;
 }
 
@@ -2059,7 +2066,7 @@ static int handle_events(SDL_Window *window)
   while (SDL_PollEvent(&e))
   {
     if (e.type == SDL_QUIT) return 0;
-    if (e.type == SDL_KEYDOWN && !e.key.repeat && !handle_key(window, e.key.keysym.sym)) return 0;
+    if (e.type == SDL_KEYDOWN && !e.key.repeat && !handle_key(window, e.key.keysym.scancode)) return 0;
     if (e.type == SDL_CONTROLLERBUTTONDOWN && !handle_controller_button(window, e.cbutton.button)) return 0;
   }
   return 1;
@@ -2089,11 +2096,16 @@ int main(int argc, char **argv)
 #endif
 
   /* ---- command line: -r, -s and -W apply over the settings (vrr.ini when playing) ---- */
-  while ((opt = getopt(argc, argv, "d:Fl:p:r:st:W")) != -1)
+  while ((opt = getopt(argc, argv, "d:Fl:p:r:st:vW")) != -1)
   {
     char keys[16] = "";
     int value = optarg ? atoi(optarg) : 0;
-    if (opt == 'd') dump_frame = value;
+    if (opt == 'v')
+    {
+      puts(TITLE);
+      return 0;
+    }
+    else if (opt == 'd') dump_frame = value;
     else if (opt == 't') track_from = value;
     else if (opt == 's') option_no_slowdown = 1;
     else if (opt == 'W') option_widescreen = 1;
@@ -2106,7 +2118,7 @@ int main(int argc, char **argv)
   }
   if (optind != argc - 1)
   {
-    fprintf(stderr, "usage: %s [-d N [-t from] [-F]] [-r 1|2|4|0] [-s] [-W] [-l state] [-p frame:keys]... rom\n",
+    fprintf(stderr, "usage: %s [-v] [-d N [-t from] [-F]] [-r 1|2|4|0] [-s] [-W] [-l state] [-p frame:keys]... rom\n",
             argv[0]);
     return 1;
   }
@@ -2135,7 +2147,7 @@ int main(int argc, char **argv)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
-  window = SDL_CreateWindow("Virtua Racing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+  window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                             (int)((VIEW_W + 2 * (widescreen ? WIDE_SIDE_COLUMNS : 0)) * PIXEL_ASPECT * 3), 224 * 3,
                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI |
                             (dump_frame >= 0 ? SDL_WINDOW_HIDDEN : 0));

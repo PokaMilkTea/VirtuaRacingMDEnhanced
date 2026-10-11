@@ -48,6 +48,20 @@ make win
 - On laptops with two graphics cards, the program asks for the faster one.
 - **Windows Defender may call it a trojan.** That is a false alarm: new programs without a digital signature are often flagged like this. The `!ml` in the message means "a machine-learning guess", not an actual virus found. You can allow it under Protection history in Windows Security.
 
+### Linux
+
+Build it on the Linux computer itself. On Ubuntu or Debian:
+
+```sh
+sudo apt install build-essential libsdl2-dev zlib1g-dev
+make
+build/vrr "Virtua Racing (USA).md"
+```
+
+- On other distributions, install a C compiler, `make`, and the development packages of SDL2 and zlib.
+- It needs a graphics driver with OpenGL 3.3.
+- The program is built for that computer's processor and may not run on another one.
+
 ## Running and settings
 
 The simplest way is to type this in Terminal:
@@ -64,7 +78,7 @@ Every setting can be changed in the game: press Esc to open the menu. Your choic
 
 - `vrr.ini`: your settings. Normally you change them in the menu; it is a plain text file, so you can also open it in a text editor, and every line explains itself. A few advanced settings (such as how far away the haze starts) can only be changed here.
 - `vrr.gp0`: the save state (press O in the game to save, P to load; one slot, a new save replaces the old one). It contains part of the game cartridge's data, so please don't share it.
-- On a Mac they go in the folder you started the program from; on Windows, beside `vrr.exe`.
+- On a Mac and on Linux they go in the folder you started the program from; on Windows, beside `vrr.exe`.
 
 ### Advanced start-up options
 
@@ -72,6 +86,7 @@ Players don't need these; they are for testing. Add them to the command:
 
 | Option | Effect |
 |---|---|
+| `-v` | Print the version and exit (the title bar shows it too) |
 | `-W` | Start in widescreen (16:9) |
 | `-s` | Turn on the SVP overclock (no slowdown with many cars) |
 | `-r 1`, `-r 2`, `-r 4`, `-r 0` | 3D resolution: 1, 2 or 4 times the original, or 0 to follow the window size |
@@ -196,6 +211,9 @@ The details below only matter when changing or maintaining the code; general rea
   - The program exports `NvOptimusEnablement` and `AmdPowerXpressRequestHighPerformance` to ask dual-GPU laptops for the discrete GPU; the console prints which GPU is in use at start-up.
   - A crash prints the exception and its offset in `vrr.exe`.
   - `vrr -d 4410` gives bit-identical results to the macOS build.
+- Linux:
+  - OpenGL is linked as `-lGL` (a framework on macOS); the functions after OpenGL 1.1 are loaded at run time as on Windows (`src/gl.h`).
+  - Under `-std=c99`, glibc hides POSIX functions such as `getopt` and libchdr's `fseeko`, so the Makefile adds `-D_DEFAULT_SOURCE`. GPGX's Makefile leaves its `DEFINES` out of some rules, so the GPGX build gets it through `CC`.
 
 ### Timing
 

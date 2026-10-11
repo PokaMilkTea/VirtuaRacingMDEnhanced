@@ -14,10 +14,22 @@ INCLUDES = $(addprefix -I$(GPGX)/core, / /z80 /m68k /sound /sound/minimp3 /sound
            -I$(GPGX_SDL) -I$(GPGX_SDL)/sdl2
 CFLAGS   = -O2 -Wall -std=c99
 
+# OpenGL: a framework on macOS, libGL elsewhere (Linux). Under -std=c99 glibc hides the POSIX
+# functions (getopt, fseeko in GPGX's libchdr) unless asked for them with _DEFAULT_SOURCE; GPGX's
+# Makefile leaves its DEFINES out of some rules, so the GPGX build gets it through CC.
+ifeq ($(shell uname -s),Darwin)
+GL_LIBS  = -framework OpenGL
+else
+GL_LIBS  = -lGL
+POSIX    = -D_DEFAULT_SOURCE
+CFLAGS  += $(POSIX)
+GPGX_CC  = CC="$(CC) $(POSIX)"
+endif
+
 all: build/svptrace build/vrr
 
 gpgx:
-	$(MAKE) -C $(GPGX_SDL) -f Makefile.sdl2
+	$(MAKE) -C $(GPGX_SDL) -f Makefile.sdl2 $(GPGX_CC)
 
 build/svptrace: src/svptrace.c src/core.c src/core.h gpgx
 	@mkdir -p build
@@ -25,12 +37,12 @@ build/svptrace: src/svptrace.c src/core.c src/core.h gpgx
 		$$(ls $(GPGX_OBJ)/*.o | grep -v '/main\.o$$') -lz -lm -o $@
 
 VRR_SOURCES = src/vrr.c src/core.c src/hle.c src/layers.c src/settings.c
-VRR_HEADERS = src/core.h src/gl.h src/hle.h src/layers.h src/settings.h
+VRR_HEADERS = src/core.h src/gl.h src/hle.h src/layers.h src/settings.h src/version.h
 
 build/vrr: $(VRR_SOURCES) $(VRR_HEADERS) gpgx
 	@mkdir -p build
 	$(CC) $(CFLAGS) $$(sdl2-config --cflags) $(DEFINES) $(INCLUDES) $(VRR_SOURCES) \
-		$$(ls $(GPGX_OBJ)/*.o | grep -v '/main\.o$$') $$(sdl2-config --libs) -framework OpenGL -lz -lm -o $@
+		$$(ls $(GPGX_OBJ)/*.o | grep -v '/main\.o$$') $$(sdl2-config --libs) $(GL_LIBS) -lz -lm -o $@
 
 # ---- Windows: vrr.exe cross-compiled with llvm-mingw against SDL2's MinGW development files,
 # both downloaded into deps/ by win-deps. The core is built by GPGX's own Makefile as for
@@ -63,7 +75,7 @@ build/win/zlib/%.o: $(ZLIB)/%.c | win-deps            # reading only: no gzip wr
 	@mkdir -p build/win/zlib
 	$(WIN_CC) -O2 -DNO_GZCOMPRESS -c $< -o $@
 
-build/win/vrr_rc.o: src/vrr.rc src/vrr.manifest | win-deps     # manifest and version information
+build/win/vrr_rc.o: src/vrr.rc src/vrr.manifest src/version.h | win-deps     # manifest and version information
 	@mkdir -p build/win
 	$(CURDIR)/deps/llvm-mingw/bin/x86_64-w64-mingw32-windres -I src src/vrr.rc -o $@
 

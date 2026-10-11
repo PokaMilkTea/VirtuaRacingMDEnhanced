@@ -72,7 +72,11 @@
 - `vrr.exe` 和 `SDL2.dll` 放在同一個資料夾，把 ROM 檔拖到 `vrr.exe` 上就會啟動。
 - 程式沒有數位簽章，第一次執行時可能會被擋下，可選擇「其他資訊」→「仍要執行」來強制開啟遊戲。
 
-設定檔（`vrr.ini`）和存檔（`vrr.gp0`）在 macOS 上存在執行時所在的資料夾，Windows 上存在 `vrr.exe` 旁邊。
+### Linux
+
+已附 Makefile，編譯方式請參考 [technical.md](docs/technical.md)（英文）的「Building it yourself」。
+
+設定檔（`vrr.ini`）和存檔（`vrr.gp0`）在 macOS 和 Linux 上存在執行時所在的資料夾，Windows 上存在 `vrr.exe` 旁邊。
 
 ## 操作
 

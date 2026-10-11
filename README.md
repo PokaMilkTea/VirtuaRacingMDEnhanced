@@ -72,7 +72,11 @@ If you prefer to build the executable yourself rather than use the prebuilt bina
 - Keep `vrr.exe` and `SDL2.dll` in the same folder, and drag the ROM file onto `vrr.exe` to start.
 - The executable is unsigned and Windows may block it. Select "More info" → "Run anyway".
 
-The settings file (`vrr.ini`) and save state (`vrr.gp0`) are stored in the working directory on macOS and in the same folder as `vrr.exe` on Windows.
+### Linux
+
+A Makefile is provided. See "Building it yourself" in [technical.md](docs/technical.md) for how to build the binary.
+
+The settings file (`vrr.ini`) and save state (`vrr.gp0`) are stored in the working directory on macOS and Linux, and in the same folder as `vrr.exe` on Windows.
 
 ## Controls
 
